@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-color: #1f2937; /* Dark background */
+      }
+      .login-card {
+        background-color: #2d3748; /* Darker card background */
+      }
+    </style>
+  </head>
+  <body class="flex items-center justify-center min-h-screen p-4">
+    <div class="login-card max-w-md w-full p-6 rounded-lg shadow-lg">
+      <h2 class="text-2xl font-semibold text-white mb-6 text-center">Login</h2>
+      <form id="login-form">
+        <div class="mb-4">
+          <label for="username" class="block text-gray-300 mb-2"
+            >Username</label
+          >
+          <input
+            type="text"
+            id="username"
+            name="username"
+            required
+            class="w-full p-2 border border-gray-600 rounded bg-gray-800 text-white"
+          />
+        </div>
+        <div class="mb-6">
+          <label for="password" class="block text-gray-300 mb-2"
+            >Password</label
+          >
+          <input
+            type="password"
+            id="password"
+            name="password"
+            required
+            class="w-full p-2 border border-gray-600 rounded bg-gray-800 text-white"
+          />
+        </div>
+
+        <!-- Buttons for Admin and User Login -->
+        <div class="flex space-x-4">
+          <button
+            type="button"
+            id="admin-login-btn"
+            class="w-1/2 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Admin Login
+          </button>
+          <button
+            type="button"
+            id="user-login-btn"
+            class="w-1/2 py-2 bg-green-600 text-white rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            User Login
+          </button>
+        </div>
+
+        <div
+          id="error-message"
+          class="mt-4 text-red-500 text-center hidden"
+        ></div>
+      </form>
+
+      <!-- Register Link -->
+      <p class="mt-4 text-center text-sm text-gray-300">
+        Don't have an account?
+        <a href="/register" class="text-blue-500 hover:underline">Register</a>
+      </p>
+    </div>
+
+    <!-- JavaScript code here -->
+    <script>
+      document
+        .getElementById("admin-login-btn")
+        .addEventListener("click", async () => {
+          await loginUser("admin");
+        });
+
+      document
+        .getElementById("user-login-btn")
+        .addEventListener("click", async () => {
+          await loginUser("user");
+        });
+
+      async function loginUser(role) {
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        const errorMessage = document.getElementById("error-message");
+
+        try {
+          const response = await fetch("/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username, password }), // Send username and password only
+          });
+
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+
+          const result = await response.json();
+
+          if (result.success) {
+            window.location.href = result.redirect; // Use redirect URL from the response
+          } else {
+            errorMessage.textContent =
+              result.message || "Login failed. Please try again.";
+            errorMessage.classList.remove("hidden");
+          }
+        } catch (error) {
+          console.error("There was an error:", error);
+          errorMessage.textContent =
+            "An error occurred. Please try again later.";
+          errorMessage.classList.remove("hidden");
+        }
+      }
+    </script>
+  </body>
+</html>
